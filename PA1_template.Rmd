@@ -96,7 +96,7 @@ ggplot(data=steps_per_interval_df2, aes(x=interval, y=steps, group=1)) +
   geom_point() +
   labs(title="Avg Steps Per Interval") +
   labs(x="Interval", y="Steps") + 
-  facet_grid(. ~ weekday)
+  facet_grid(weekday ~ .)
 
 ```
 
