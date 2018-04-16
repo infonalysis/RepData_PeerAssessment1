@@ -7,19 +7,96 @@ output:
 
 
 ## Loading and preprocessing the data
+```{r echo=TRUE}
+# set environment
+base_dir <- "~/Documents/coursera/RepRes_2018/RepData_PeerAssessment1"
+library(ggplot2)
+library(dplyr)
+
+# get data
+setwd(base_dir)
+unzip("activity.zip")
+activity_df0 <- read.table(file="activity.csv", sep=",", header=TRUE)
+```
+
 
 
 
 ## What is mean total number of steps taken per day?
+```{r echo=TRUE}
+# remove rows with NA values
+no_na_df <- activity_df0[ which(activity_df0$steps!='NA'), ]
 
+# calculate total steps by date
+steps_per_day_df <- aggregate(steps ~ date, no_na_df, sum)
+
+# histogram of steps per day
+ggplot(data=steps_per_day_df, aes(steps_per_day_df$steps)) + 
+  geom_histogram() + 
+  labs(title="Histogram of Total Steps Per Day") +
+  labs(x="Steps Per Day", y="Count")
+
+# avg steps per day
+mean(steps_per_day_df$steps)
+median(steps_per_day_df$steps)
+```
 
 
 ## What is the average daily activity pattern?
+```{r echo=TRUE}
 
+# plot avg steps over time
+steps_per_interval_df <- aggregate(steps ~ interval, no_na_df, mean)
+ggplot(data=steps_per_interval_df, aes(x=interval, y=steps, group=1)) +
+  geom_line() +
+  geom_point() +
+  labs(title="Avg Steps Per Interval") +
+  labs(x="Interval", y="Steps")
+
+# find interval with max average steps
+steps_per_interval_df %>% top_n(1, steps)
+
+```
 
 
 ## Imputing missing values
+```{r echo=TRUE}
 
+# count rows with steps=NA
+nrow(activity_df0[is.na(activity_df0$steps), ])
+
+# replace NA values with mean for respective interval (dplyr)
+fill_na_df <- activity_df0 %>% 
+  rowwise() %>%
+  mutate(steps = if_else(is.na(steps), as.integer(round(steps_per_interval_df[ which(steps_per_interval_df$interval==interval), ]$steps)), steps))
+
+# histogram of steps per day
+ggplot(data=fill_na_df, aes(fill_na_df$steps)) + 
+  geom_histogram() + 
+  labs(title="Histogram of Total Steps Per Day") +
+  labs(x="Steps Per Day", y="Count")
+
+# avg steps per day
+mean(fill_na_df$steps)
+median(fill_na_df$steps)
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+
+# create factor var to label each row as weekday / weekend
+fill_na_df <- fill_na_df %>% mutate(weekday = ifelse(weekdays(as.Date(date)) %in% c("Saturday", "Sunday"), "weekend", "weekday"))
+fill_na_df$weekday <- factor(fill_na_df$weekday)
+
+# plot avg steps over time, by weekday / weekend
+steps_per_interval_df2 <- aggregate(steps ~ interval+weekday, fill_na_df, mean)
+ggplot(data=steps_per_interval_df2, aes(x=interval, y=steps, group=1)) +
+  geom_line() +
+  geom_point() +
+  labs(title="Avg Steps Per Interval") +
+  labs(x="Interval", y="Steps") + 
+  facet_grid(. ~ weekday)
+
+```
+
