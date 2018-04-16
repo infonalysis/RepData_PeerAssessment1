@@ -25,7 +25,7 @@ activity_df0 <- read.table(file="activity.csv", sep=",", header=TRUE)
 ## What is mean total number of steps taken per day?
 ```{r echo=TRUE}
 # remove rows with NA values
-no_na_df <- activity_df0[ which(activity_df0$steps!='NA'), ]
+no_na_df <- activity_df0[ !is.na(activity_df0$steps), ]
 
 # calculate total steps by date
 steps_per_day_df <- aggregate(steps ~ date, no_na_df, sum)
@@ -33,7 +33,7 @@ steps_per_day_df <- aggregate(steps ~ date, no_na_df, sum)
 # histogram of steps per day
 ggplot(data=steps_per_day_df, aes(steps_per_day_df$steps)) + 
   geom_histogram() + 
-  labs(title="Histogram of Total Steps Per Day") +
+  labs(title="Histogram of Total Steps Per Day (disregarding NA values)") +
   labs(x="Steps Per Day", y="Count")
 
 # avg steps per day
@@ -50,7 +50,7 @@ steps_per_interval_df <- aggregate(steps ~ interval, no_na_df, mean)
 ggplot(data=steps_per_interval_df, aes(x=interval, y=steps, group=1)) +
   geom_line() +
   geom_point() +
-  labs(title="Avg Steps Per Interval") +
+  labs(title="Avg Steps Per Interval (disregarding NA values)") +
   labs(x="Interval", y="Steps")
 
 # find interval with max average steps
@@ -73,7 +73,7 @@ fill_na_df <- activity_df0 %>%
 # histogram of steps per day
 ggplot(data=fill_na_df, aes(fill_na_df$steps)) + 
   geom_histogram() + 
-  labs(title="Histogram of Total Steps Per Day") +
+  labs(title="Histogram of Total Steps Per Day (imputing NA values)") +
   labs(x="Steps Per Day", y="Count")
 
 # avg steps per day
