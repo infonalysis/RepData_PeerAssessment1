@@ -77,15 +77,18 @@ fill_na_df <- activity_df0 %>%
   rowwise() %>%
   mutate(steps = if_else(is.na(steps), as.integer(round(steps_per_interval_df[ which(steps_per_interval_df$interval==interval), ]$steps)), steps))
 
+# calculate total steps by date
+steps_per_day_filled_df <- aggregate(steps ~ date, fill_na_df, sum)
+
 # histogram of steps per day
-ggplot(data=fill_na_df, aes(fill_na_df$steps)) + 
+ggplot(data=steps_per_day_filled_df, aes(steps_per_day_filled_df$steps)) + 
   geom_histogram() + 
   labs(title="Histogram of Total Steps Per Day (imputing NA values)") +
   labs(x="Steps Per Day", y="Count")
 
 # avg steps per day
-filled_mean = mean(fill_na_df$steps)
-filled_median = median(fill_na_df$steps)
+filled_mean = mean(steps_per_day_filled_df$steps)
+filled_median = median(steps_per_day_filled_df$steps)
 filled_mean
 filled_median
 ```

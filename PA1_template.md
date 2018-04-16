@@ -132,8 +132,11 @@ fill_na_df <- activity_df0 %>%
   rowwise() %>%
   mutate(steps = if_else(is.na(steps), as.integer(round(steps_per_interval_df[ which(steps_per_interval_df$interval==interval), ]$steps)), steps))
 
+# calculate total steps by date
+steps_per_day_filled_df <- aggregate(steps ~ date, fill_na_df, sum)
+
 # histogram of steps per day
-ggplot(data=fill_na_df, aes(fill_na_df$steps)) + 
+ggplot(data=steps_per_day_filled_df, aes(steps_per_day_filled_df$steps)) + 
   geom_histogram() + 
   labs(title="Histogram of Total Steps Per Day (imputing NA values)") +
   labs(x="Steps Per Day", y="Count")
@@ -147,13 +150,13 @@ ggplot(data=fill_na_df, aes(fill_na_df$steps)) +
 
 ```r
 # avg steps per day
-filled_mean = mean(fill_na_df$steps)
-filled_median = median(fill_na_df$steps)
+filled_mean = mean(steps_per_day_filled_df$steps)
+filled_median = median(steps_per_day_filled_df$steps)
 filled_mean
 ```
 
 ```
-## [1] 37.38069
+## [1] 10765.64
 ```
 
 ```r
@@ -161,12 +164,12 @@ filled_median
 ```
 
 ```
-## [1] 0
+## [1] 10762
 ```
 
 The original data set contained 2304 rows for which the steps column was missing a value.  For each of these rows, the steps value was imputed using the mean value for the associated time interval across the entire data set.
 
-After imputing missing values for the steps column, the mean number of steps per day was 37.4.  The median number of steps per day was 0.
+After imputing missing values for the steps column, the mean number of steps per day was 10765.6.  The median number of steps per day was 10762.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
